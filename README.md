@@ -17,25 +17,25 @@ PC + branch logic: beq compares rs1/rs2; on equal, next_pc = pc + offset, otherw
 Restructures the single-cycle version into IF / ID / EX / MEM / WB stages, connected by four pipeline registers (if_id_reg, id_ex_reg, ex_mem_reg, mem_wb_reg), allowing multiple instructions to be in flight simultaneously.
 Known limitations (explicitly not yet implemented):
 Branch instructions are not yet integrated into the pipeline (no flush logic for a taken branch discovered after younger instructions have already been fetched)
-No hazard detection or forwarding — back-to-back instructions with register dependencies closer together than the pipeline depth will read stale values
+No hazard detection or forwarding, back-to-back instructions with register dependencies closer together than the pipeline depth will read stale values
 
 
 Files:
-reg_file.sv — register file
-alu_32bit.sv — 32-bit ALU
-data_mem.sv — data memory
-datapath_single_cycle.sv — single-cycle datapath (includes PC + branch logic)
+reg_file.sv - register file
+alu_32bit.sv - 32-bit ALU
+data_mem.sv - data memory
+datapath_single_cycle.sv - single-cycle datapath (includes PC + branch logic)
 pc_reg.sv, if_id_reg.sv, id_ex_reg.sv, ex_mem_reg.sv, mem_wb_reg.sv pipeline registers
-pipelined_datapath.sv — top-level 5-stage pipelined datapath
-tb_datapath_single_cycle.sv — testbench for the single-cycle version (covers addi/add/sub, sw/lw round-trip, and both taken/not-taken beq outcomes)
-tb_pipelined_datapath.sv — testbench for the pipelined version (streams independent instructions through all 5 stages, including a sw→lw round-trip)
+pipelined_datapath.sv - top-level 5-stage pipelined datapath
+tb_datapath_single_cycle.sv - testbench for the single-cycle version (covers addi/add/sub, sw/lw round-trip, and both taken/not-taken beq outcomes)
+tb_pipelined_datapath.sv - testbench for the pipelined version (streams independent instructions through all 5 stages, including a sw→lw round-trip)
 
 
 Verification:
 Every module was verified independently before integration (register file, then ALU, then single-cycle datapath, then data memory, then branch logic, then each pipeline register, then the full pipeline).
 
 Pipelined datapath testbench confirms:
-Four independent addi instructions each complete write-back exactly 4 cycles after being issued — demonstrating correct pipeline latency and throughput
+Four independent addi instructions each complete write-back exactly 4 cycles after being issued, demonstrating correct pipeline latency and throughput
 A sw followed (after a gap) by an lw to the same address correctly round-trips a stored value through all 5 stages
 A follow-up add using the loaded register confirms the value was written back correctly
 
